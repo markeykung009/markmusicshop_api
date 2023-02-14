@@ -49,6 +49,16 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "RESTRICT",
       }
     );
+    User.hasMany(
+      db.Cart,
+      {
+        foreignKey: "userId",
+        allowNull: false,
+      },
+      {
+        onDelete: "RESTRICT",
+      }
+    );
   };
 
   return User;

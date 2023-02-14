@@ -9,6 +9,13 @@ module.exports = (sequelize, DataTypes) => {
       transactionImg: {
         type: DataTypes.STRING,
       },
+      status: {
+        type: DataTypes.ENUM("reject", "pending", "paid"),
+        defaultValue: "pending",
+      },
+      address: {
+        type: DataTypes.STRING,
+      },
     },
     {
       underscored: true,

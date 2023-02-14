@@ -13,6 +13,9 @@ module.exports = (sequelize, DataTypes) => {
       productImage: {
         type: DataTypes.STRING,
       },
+      sales: {
+        type: DataTypes.INTEGER,
+      },
     },
     {
       underscored: true,
@@ -30,6 +33,16 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "RESTRICT",
       }
     ),
+      Product.hasMany(
+        db.Cart,
+        {
+          foreignKey: "productId",
+          allowNull: false,
+        },
+        {
+          onDelete: "RESTRICT",
+        }
+      ),
       Product.belongsTo(
         db.Supplier,
         {

@@ -1,15 +1,19 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const {
+  validateRegister,
+  validateLogin,
+} = require("../validators/auth-validator");
 const { User } = require("../models");
 const createError = require("../utils/create-error");
 
 exports.register = async (req, res, next) => {
   try {
-    const value = req.body;
+    const value = validateRegister(req.body);
     console.log(req.body);
 
     const user = await User.findOne({
-      where: { email: value.email || "" },
+      where: { email: value.email },
     });
 
     if (user) {
@@ -21,6 +25,50 @@ exports.register = async (req, res, next) => {
     res
       .status(201)
       .json({ message: "register success. please login to continue. " });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.login = async (req, res, next) => {
+  try {
+    const value = validateLogin(req.body);
+    console.log(value);
+
+    const user = await User.findOne({
+      where: { email: value.email },
+    });
+
+    if (!user) {
+      createError("invalid email or password", 400);
+    }
+
+    const isCorrect = await bcrypt.compare(value.password, user.password);
+
+    if (!isCorrect) {
+      createError("invalid email or password", 400);
+    }
+
+    const accessToken = jwt.sign(
+      {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        password: user.password,
+        address: user.address,
+        profileImage: user.profileImage,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+      process.env.JWT_SECRET_KEY,
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+      }
+    );
+
+    res.status(200).json({ accessToken });
   } catch (err) {
     next(err);
   }
